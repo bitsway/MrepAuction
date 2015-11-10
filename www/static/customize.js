@@ -362,7 +362,11 @@ function auction_details(actionId){
 								var auctionStrData='<tr style="font-size:13px;font-weight:bold; text-shadow:none; color:#408080;" ><td >Delivery Date</td><td >Route</td><td >Vehicle Type</td><td >Number Of Vehicle</td><td>Bid/Per Vehicle</td><td style="text-align:right;"> Min Rate</td></tr>'
 								for (i=0; i < dataListLength; i++){
 									var auctionDataList=dataList[i].split('<fd>');
-									auctionStrData+='<tr style="font-size:11px;border-color:#4E9A9A;"><td style="border-color:#4E9A9A;"><b>'+auctionDataList[1]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[2]+' <b>To</b> '+auctionDataList[3]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[4]+'</td><td style="border-color:#4E9A9A;text-align:center">'+auctionDataList[6]+' / '+auctionDataList[5]+'MT</td><td style="border-color:#4E9A9A;"><input type="number" id="routeIdRate_'+auctionDataList[0]+'" value="'+auctionDataList[10]+'" style="text-align:right;font-weight:bold;font-size:14px;"/></td><td style="border-color:#4E9A9A;text-align:right;"><span id="routeIdMinRateShow_'+auctionDataList[0]+'">'+auctionDataList[9]+'</span><input type="hidden" id="routeIdMinRate_'+auctionDataList[0]+'" value="'+auctionDataList[9]+'" style="text-align:right;font-weight:bold;font-size:14px;"/></td></tr>'
+									var rateValue=auctionDataList[10];
+									if(rateValue==0){
+										rateValue=''
+										}
+									auctionStrData+='<tr style="font-size:11px;border-color:#4E9A9A;"><td style="border-color:#4E9A9A;"><b>'+auctionDataList[1]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[2]+' <b>To</b> '+auctionDataList[3]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[4]+'</td><td style="border-color:#4E9A9A;text-align:center">'+auctionDataList[6]+' / '+auctionDataList[5]+'MT</td><td style="border-color:#4E9A9A;"><input type="number" id="routeIdRate_'+auctionDataList[0]+'" value="'+rateValue+'" style="text-align:right;font-weight:bold;font-size:14px;" placeholder="0"/></td><td style="border-color:#4E9A9A;text-align:right;"><span id="routeIdMinRateShow_'+auctionDataList[0]+'">'+auctionDataList[9]+'</span><input type="hidden" id="routeIdMinRate_'+auctionDataList[0]+'" value="'+auctionDataList[9]+'" style="text-align:right;font-weight:bold;font-size:14px;"/></td></tr>'
 									
 									if (detailSl==''){
 											detailSl=auctionDataList[0];
@@ -432,6 +436,11 @@ function auction_submit(){
 		}catch(e){
 			bidRate=0
 		}
+		//-------------
+		if(minRate>0 && bidRate==minRate){
+			continue;		
+		}
+		
 		//--------------
 		if(minRate>0 && bidRate>=minRate){
 			rateFlag=false;
