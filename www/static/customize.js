@@ -396,17 +396,18 @@ function auction_details(actionId){
 								var dataListLength=dataList.length;
 								
 								//------------------------
-								//0 auctionRouteID+'<fd>1'+dateOfDelivery+'<fd>2'+shippingFrom+'<fd>3'+shippingTo+'<fd>4'+vehicleType+'<fd>5'+vehicleCapacity+'<fd>6'+vehicleQty+'<fd>7'+typeofGoods+'<fd>8'+pONo+'<fd>9'+str(minBitRate)+'<fd>10'+str(lastBitRate)
+								//0 auctionRouteID+'<fd>1'+dateOfDelivery+'<fd>2'+shippingFrom+'<fd>3'+shippingTo+'<fd>4'+vehicleType+'<fd>5'+vehicleCapacity+'<fd>6'+vehicleQty+'<fd>7'+typeofGoods+'<fd>8'+pONo+'<fd>9'+str(minBitRate)+'<fd>10'+str(lastBitRate)+'<fd>11'+str(maximumBidRate)
 								
 								var detailSl=''
-								var auctionStrData='<tr style="font-size:13px;font-weight:bold; text-shadow:none; color:#408080;" ><td >Delivery Date</td><td >Route</td><td >Vehicle Type</td><td >Number Of Vehicle</td><td>Bid/Per Vehicle</td><td style="text-align:right;"> Min Rate</td></tr>'
+								var auctionStrData='<tr style="font-size:13px;font-weight:bold; text-shadow:none; color:#408080;" ><td >Delivery Date</td><td >Route</td><td >Vehicle Type</td><td >Number Of Vehicle</td><td>Bid/Per Vehicle</td><td style="text-align:right;">Lowest Rate</td></tr>'
 								for (i=0; i < dataListLength; i++){
 									var auctionDataList=dataList[i].split('<fd>');
 									var rateValue=auctionDataList[10];
+									var routeName=auctionDataList[2]+' To '+auctionDataList[3]
 									if(rateValue==0){
 										rateValue=''
 										}
-									auctionStrData+='<tr style="font-size:11px;border-color:#4E9A9A;"><td style="border-color:#4E9A9A;"><b>'+auctionDataList[1]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[2]+' <b>To</b> '+auctionDataList[3]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[4]+'</td><td style="border-color:#4E9A9A;text-align:center">'+auctionDataList[6]+' / '+auctionDataList[5]+'MT</td><td style="border-color:#4E9A9A;"><input type="number" id="routeIdRate_'+auctionDataList[0]+'" value="'+rateValue+'" style="text-align:right;font-weight:bold;font-size:14px;" placeholder="0"/></td><td style="border-color:#4E9A9A;text-align:right;"><span id="routeIdMinRateShow_'+auctionDataList[0]+'">'+auctionDataList[9]+'</span><input type="hidden" id="routeIdMinRate_'+auctionDataList[0]+'" value="'+auctionDataList[9]+'" style="text-align:right;font-weight:bold;font-size:14px;"/></td></tr>'
+									auctionStrData+='<tr style="font-size:11px;border-color:#4E9A9A;"><td style="border-color:#4E9A9A;"><b>'+auctionDataList[1]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[2]+' <b>To</b> '+auctionDataList[3]+'</td><td style="border-color:#4E9A9A;">'+auctionDataList[4]+'</td><td style="border-color:#4E9A9A;text-align:center">'+auctionDataList[6]+' / '+auctionDataList[5]+'MT</td><td style="border-color:#4E9A9A;"><input type="number" id="routeIdRate_'+auctionDataList[0]+'" value="'+rateValue+'" style="text-align:right;font-weight:bold;font-size:14px;" placeholder="0"/></td><td style="border-color:#4E9A9A;text-align:right;"><span id="routeIdMinRateShow_'+auctionDataList[0]+'">'+auctionDataList[9]+'</span><input type="hidden" id="routeIdMinRate_'+auctionDataList[0]+'" value="'+auctionDataList[9]+'"/><input type="hidden" id="routeIdMaxRate_'+auctionDataList[0]+'" value="'+auctionDataList[11]+'"/><input type="hidden" id="routeIdRouteName_'+auctionDataList[0]+'" value="'+routeName+'"/></td></tr>'
 									
 									if (detailSl==''){
 											detailSl=auctionDataList[0];
@@ -469,7 +470,10 @@ function auction_submit(){
 	for (i=0; i < listLength; i++){		
 		try{
 			bidRate=eval($("#routeIdRate_"+detailsIdList[i]).val());
-			minRate=eval($("#routeIdMinRate_"+detailsIdList[i]).val());			
+			minRate=eval($("#routeIdMinRate_"+detailsIdList[i]).val());
+			maxRate=eval($("#routeIdMaxRate_"+detailsIdList[i]).val());	
+			routeName=$("#routeIdRouteName_"+detailsIdList[i]).val();
+			
 			if (bidRate<=0){
 				bidRate=0
 			}		
@@ -481,12 +485,20 @@ function auction_submit(){
 			continue;		
 		}
 		
-		//--------------
+		//-------------- Check min rate
 		if(minRate>0 && bidRate>=minRate){
 			rateFlag=false;
-			rateFlagMsg='<b>'+bidRate +'</b> should be less than min rate <b>'+ minRate+'</b>';
+			rateFlagMsg='Bid amount should be less than <b>'+ minRate+'</b> on the route <b>'+routeName +'</b>';
 			break;		
 		}
+		
+		//-------------- Check Max Rate
+		if(maxRate>0 && bidRate>maxRate){
+			rateFlag=false;
+			rateFlagMsg='Bid amount should be less than <b>'+ maxRate+'</b> on the route <b>'+routeName +'</b>';
+			break;		
+		}
+		
 		//------------
 		if (bidRate>0){		
 			if (routeRateStr==''){
